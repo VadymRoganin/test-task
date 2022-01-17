@@ -1,0 +1,42 @@
+version: '2.1'
+
+services:
+  app:
+    image: 'test/test-task:latest'
+    ports:
+      - '8080:8080'
+    build:
+      context: .
+    container_name: app
+    depends_on:
+      - flyway
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/test-db?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=test-username
+      - SPRING_DATASOURCE_PASSWORD=test-password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+
+  flyway:
+    image: boxfuse/flyway:5-alpine
+    command: -url=jdbc:mysql://db:3306/test-db?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true -user=test-username -password=test-password migrate
+    volumes:
+      - ../resources/migration:/flyway/sql
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: 'mysql:latest'
+    container_name: db
+    environment:
+      MYSQL_DATABASE: test-db
+      MYSQL_USER: test-username
+      MYSQL_PASSWORD: test-password
+      MYSQL_ROOT_PASSWORD: test-root-password
+      ports: '3306:3306'
+      expose: '3306'
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 1s
+      retries: 10
