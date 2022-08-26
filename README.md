@@ -1,5 +1,3 @@
-This is the test task for **Metadata**
-
 **Prerequisites:** You need to have installed: Java 17+, Maven 3.6.3+,
 Docker 20.10.10+ (lower versions of Maven and Docker may also be fine but weren't tested).
 You also need to have **8080** port available on your machine.
